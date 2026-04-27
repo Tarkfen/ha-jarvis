@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Jarvis</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header>
+    <div class="logo">J A R V I S</div>
+    <div class="controls">
+      <button id="tts-toggle" title="Enable/disable voice responses">🔊</button>
+      <div id="wake-dot" class="wake-dot" title='Wake word inactive — add PICOVOICE_ACCESS_KEY to .env'></div>
+      <div id="status-dot" class="status-dot connecting" title="Checking connection..."></div>
+    </div>
+  </header>
+
+  <main id="messages"></main>
+
+  <footer>
+    <div class="input-row">
+      <textarea id="user-input" placeholder="Ask Jarvis..." rows="1"></textarea>
+      <button id="voice-btn" title="Hold to speak">🎤</button>
+      <button id="send-btn">Send</button>
+    </div>
+    <div id="voice-status"></div>
+  </footer>
+
+  <script src="/porcupine/porcupine-web.js" onerror="console.info('Wake word disabled — run setup_porcupine.sh to enable')"></script>
+  <script src="app.js"></script>
+</body>
+</html>
