@@ -45,7 +45,7 @@ function speak(text) {
 // ── Connection health check ───────────────────────────────────────────────────
 async function checkHealth() {
   try {
-    const r = await fetch('/api/health');
+    const r = await fetch('api/health');
     const data = await r.json();
     if (data.home_assistant === 'connected') {
       statusDot.className = 'status-dot connected';
@@ -120,7 +120,7 @@ async function sendMessage(text) {
   showTyping();
 
   try {
-    const r = await fetch('/api/chat', {
+    const r = await fetch('api/chat', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ session_id: SESSION_ID, message: text }),
@@ -224,7 +224,8 @@ let wakeAudioCtx = null;
 
 async function initWakeWord() {
   const proto = location.protocol === 'https:' ? 'wss' : 'ws';
-  const ws = new WebSocket(`${proto}://${location.host}/ws/wake-word`);
+  const base = location.pathname.endsWith('/') ? location.pathname : location.pathname + '/';
+  const ws = new WebSocket(`${proto}://${location.host}${base}ws/wake-word`);
   ws.binaryType = 'arraybuffer';
 
   ws.onmessage = (e) => {
@@ -260,7 +261,7 @@ async function startMicStream(ws) {
       audio: { sampleRate: 16000, channelCount: 1, echoCancellation: true },
     });
     wakeAudioCtx = new AudioContext({ sampleRate: 16000 });
-    await wakeAudioCtx.audioWorklet.addModule('/audio-processor.js');
+    await wakeAudioCtx.audioWorklet.addModule('audio-processor.js');
 
     const source = wakeAudioCtx.createMediaStreamSource(wakeStream);
     const processor = new AudioWorkletNode(wakeAudioCtx, 'wake-word-processor');
