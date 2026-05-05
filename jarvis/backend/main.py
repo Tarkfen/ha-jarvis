@@ -2,7 +2,6 @@ import asyncio
 from contextlib import asynccontextmanager
 from pathlib import Path
 
-import numpy as np
 from fastapi import FastAPI, HTTPException, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
@@ -92,6 +91,7 @@ async def wake_word_ws(websocket: WebSocket):
     try:
         while True:
             data = await websocket.receive_bytes()
+            import numpy as np
             audio = np.frombuffer(data, dtype=np.int16)
             prediction = await asyncio.to_thread(oww_model.predict, audio)
             for score in prediction.values():
