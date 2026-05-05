@@ -5,6 +5,9 @@ WORKDIR /app
 COPY requirements.txt .
 RUN pip3 install --no-cache-dir -r requirements.txt
 
+# Pre-download the wake word model so first startup is instant
+RUN python3 -c "import openwakeword; openwakeword.utils.download_models(['hey_jarvis_v0.1'])"
+
 COPY backend/ ./backend/
 COPY frontend/ ./frontend/
 
