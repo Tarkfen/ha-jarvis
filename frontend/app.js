@@ -216,46 +216,86 @@ if (!SpeechRecognition) {
   };
 }
 
-// ── Porcupine wake word ("Jarvis") ────────────────────────────────────────────
+// ── OpenWakeWord ("Hey Jarvis") ───────────────────────────────────────────────
 const wakeDot = document.getElementById('wake-dot');
 
-async function initWakeWord(accessKey) {
-  if (!window.PorcupineWeb) return;
-  const { PorcupineWorker } = PorcupineWeb;
+let wakeStream = null;
+let wakeAudioCtx = null;
 
-  try {
-    const porcupine = await PorcupineWorker.create(
-      accessKey,
-      [{ builtin: 'JARVIS', sensitivity: 0.6 }],
-      onWakeWord,
-      { publicPath: '/porcupine/', forceWrite: true }
-    );
-    await porcupine.start();
-    wakeDot.className = 'wake-dot active';
-    wakeDot.title = "Wake word active — say 'Jarvis'";
-  } catch (err) {
-    console.warn('Wake word init failed:', err.message);
+async function initWakeWord() {
+  const proto = location.protocol === 'https:' ? 'wss' : 'ws';
+  const ws = new WebSocket(`${proto}://${location.host}/ws/wake-word`);
+  ws.binaryType = 'arraybuffer';
+
+  ws.onmessage = (e) => {
+    if (e.data === 'unavailable') {
+      wakeDot.title = 'Wake word unavailable — run: pip install openwakeword';
+      return;
+    }
+    if (e.data === 'ready') {
+      startMicStream(ws);
+      return;
+    }
+    if (e.data === 'detected') {
+      onWakeWord();
+    }
+  };
+
+  ws.onerror = () => {
     wakeDot.className = 'wake-dot error';
-    wakeDot.title = `Wake word error: ${err.message}`;
+    wakeDot.title = 'Wake word connection failed';
+  };
+
+  ws.onclose = () => {
+    stopMicStream();
+    wakeDot.className = 'wake-dot';
+    // Reconnect after 3s
+    setTimeout(initWakeWord, 3000);
+  };
+}
+
+async function startMicStream(ws) {
+  try {
+    wakeStream = await navigator.mediaDevices.getUserMedia({
+      audio: { sampleRate: 16000, channelCount: 1, echoCancellation: true },
+    });
+    wakeAudioCtx = new AudioContext({ sampleRate: 16000 });
+    await wakeAudioCtx.audioWorklet.addModule('/audio-processor.js');
+
+    const source = wakeAudioCtx.createMediaStreamSource(wakeStream);
+    const processor = new AudioWorkletNode(wakeAudioCtx, 'wake-word-processor');
+    source.connect(processor);
+
+    processor.port.onmessage = (e) => {
+      if (ws.readyState === WebSocket.OPEN) ws.send(e.data);
+    };
+
+    wakeDot.className = 'wake-dot active';
+    wakeDot.title = "En écoute — dites 'Hey Jarvis'";
+  } catch (err) {
+    wakeDot.className = 'wake-dot error';
+    wakeDot.title = `Micro inaccessible: ${err.message}`;
   }
+}
+
+function stopMicStream() {
+  wakeStream?.getTracks().forEach(t => t.stop());
+  wakeAudioCtx?.close();
+  wakeStream = null;
+  wakeAudioCtx = null;
 }
 
 function onWakeWord() {
   if (isRecording) return;
   wakeDot.classList.add('triggered');
-  voiceStatus.textContent = 'Jarvis activé…';
-  // Short delay so the wake word utterance doesn't bleed into the command
+  voiceStatus.textContent = 'Hey Jarvis…';
   setTimeout(() => {
     wakeDot.classList.remove('triggered');
     startListening();
   }, 600);
 }
 
-// Fetch config and boot wake word if key is present
-fetch('/api/config')
-  .then(r => r.json())
-  .then(cfg => { if (cfg.picovoiceAccessKey) initWakeWord(cfg.picovoiceAccessKey); })
-  .catch(() => {});
+initWakeWord();
 
 // Load voices asynchronously (Chrome needs this)
 if (window.speechSynthesis) {

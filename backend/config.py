@@ -10,7 +10,6 @@ class Settings:
     ha_url: str
     ha_token: str
     anthropic_api_key: str
-    picovoice_access_key: str
     host: str
     port: int
 
@@ -31,7 +30,6 @@ def get_settings() -> Settings:
         ha_url=ha_url,
         ha_token=ha_token,
         anthropic_api_key=api_key,
-        picovoice_access_key=os.getenv("PICOVOICE_ACCESS_KEY", ""),
         host=os.getenv("JARVIS_HOST", "0.0.0.0"),
         port=int(os.getenv("JARVIS_PORT", "8000")),
     )

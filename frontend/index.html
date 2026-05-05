@@ -11,7 +11,7 @@
     <div class="logo">J A R V I S</div>
     <div class="controls">
       <button id="tts-toggle" title="Enable/disable voice responses">🔊</button>
-      <div id="wake-dot" class="wake-dot" title='Wake word inactive — add PICOVOICE_ACCESS_KEY to .env'></div>
+      <div id="wake-dot" class="wake-dot" title="Wake word en initialisation…"></div>
       <div id="status-dot" class="status-dot connecting" title="Checking connection..."></div>
     </div>
   </header>
@@ -27,7 +27,6 @@
     <div id="voice-status"></div>
   </footer>
 
-  <script src="/porcupine/porcupine-web.js" onerror="console.info('Wake word disabled — run setup_porcupine.sh to enable')"></script>
   <script src="app.js"></script>
 </body>
 </html>
