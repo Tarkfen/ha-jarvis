@@ -1,5 +1,4 @@
-ARG BUILD_ARCH=aarch64
-FROM ghcr.io/home-assistant/${BUILD_ARCH}-base-python:3.12
+FROM python:3.12-slim
 
 WORKDIR /app
 
