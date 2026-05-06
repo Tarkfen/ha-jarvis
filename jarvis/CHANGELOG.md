@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.1.1
+
+- Fix WebSocket support for Hey Jarvis wake word (add websockets library)
+
 ## 1.1.0
 
 - Re-enable "Hey Jarvis" wake word on HA Green (ARM64) — onnxruntime now installs via pre-built wheel on Debian

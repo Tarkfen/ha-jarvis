@@ -1,6 +1,6 @@
 name: "Jarvis"
 description: "Home automation AI assistant powered by Claude"
-version: "1.1.0"
+version: "1.1.1"
 slug: "jarvis"
 init: false
 
