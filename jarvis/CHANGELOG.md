@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.1.2
+
+- Fix openwakeword install on ARM64: skip tflite-runtime (no ARM64 wheel) by installing with --no-deps, using ONNX only
+
 ## 1.1.1
 
 - Fix WebSocket support for Hey Jarvis wake word (add websockets library)
